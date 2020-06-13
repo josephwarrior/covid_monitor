@@ -1,0 +1,198 @@
+body {
+  background-color: #282c34;
+  width: 100%;
+}
+.App {
+  text-align: center;
+  background-color: #282c34;
+  color: gray;
+  height: 100%;
+  width: 100%;
+}
+
+.App * {
+  outline: none;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.photo-group {
+  display: flex;
+  align-items: center;
+}
+
+.yoly,
+.bratt {
+  height: 100px;
+  width: 100px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .photo-group {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .yoly,
+  .bratt {
+    animation: rever-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rever-spin {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+li {
+  display: flex;
+  justify-content: flex-start;
+}
+
+span {
+  margin-left: 50px;
+}
+
+.racing-bars-container {
+  display: grid;
+  height: 50rem;
+  overflow: auto;
+}
+
+@media only screen and (min-width: 769px) {
+  .racing-bars-container {
+    grid-template-columns: 33% 33% 33%;
+  }
+}
+
+/* @media only screen and (max-width:768px){
+  .racing-bars-container {
+    grid-template-columns: 33% 33% 33%;
+  }
+} */
+
+.hidden {
+  visibility: hidden;
+}
+/*
+svg {
+  background-color: rgb(90, 88, 88);
+}
+*/
+.label {
+  stroke: gray;
+}
+
+button {
+  background-color: gray;
+  width: 4em;
+  height: 2em;
+  padding: 0px;
+  border: 0.1em solid gray;
+  border-radius: 1em;
+  line-height: 0.1em;
+  color: rgb(80, 78, 78);
+}
+
+span {
+  background-color: transparent;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: silver;
+}
+
+.x-axis * {
+  color: gray;
+}
+
+.buttons-and-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0em 1em 0em 1em;
+  margin-bottom: 0.5em;
+  height: 2.5em;
+}
+
+.refresh-button :first-child {
+  position: relative;
+  top: 0.1em;
+  left: 0.5em;
+  margin: 0px;
+  padding: 0px;
+  font-weight: 700;
+}
+
+.tooltip {
+  width: 40px;
+  background-color: rgb(155, 155, 155);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: relative;
+  top: -2.5em;
+  left: 0%;
+  margin-left: -20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+  outline: none;
+}
+
+.tooltip.arrow {
+  color: transparent;
+  background-color: transparent;
+  stroke: transparent;
+  position: relative;
+  top: -0.12em;
+  left: 0%;
+  margin-left: -30px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgb(155, 155, 155) transparent transparent transparent;
+  opacity: 0;
+}
+
+button:hover .tooltip,
+button:hover .tooltip.arrow {
+  opacity: 1;
+}
+
+.date-axis line {
+  stroke: #282c34;
+}
