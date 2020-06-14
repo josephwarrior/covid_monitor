@@ -26,7 +26,7 @@ function App() {
   const [datesArray, setDatesArray] = useState([]);
 
   const [intervalId, setIntervalId] = useState(0);
-  const [transitionTime, setTransitionTime] = useState(500);
+  const [transitionTime, setTransitionTime] = useState(1000);
   const [isReseted, setIsReseted] = useState(false);
 
   useEffect(() => {
