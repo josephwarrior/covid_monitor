@@ -63,7 +63,7 @@ const getDailyValue = (item, list, queryType) => {
 };
 
 const getItemQueryValue = (item, list, queryType) => {
-  //if (item.country === "France") console.log(item);
+  // console.log(item);
   const previousDateString = getPreviousDateString(item.date);
   let previousValue = 0;
   if (!!list[previousDateString] && !!list[previousDateString][item.country]) {
@@ -115,7 +115,7 @@ const getPreviousDateString = (currentDateString) => {
   return previousDateString;
 };
 
-const convertDateToString = (originalDate) => {
+export const convertDateToString = (originalDate) => {
   const date = new Date(originalDate);
   const yearString = date.getFullYear();
   const monthString =
@@ -133,7 +133,41 @@ export const convertStringToDate = (dateString) => {
   return new Date(year, month, day);
 };
 
-export const sortTopNLists = (perCountryArrays, dateIndex, n) => {
+export const getTopLists = (perCountryArrays, dateIndex, n) => {
+  //console.log(dateIndex);
+  const observableCountriesArray = Object.keys(
+    getObservableList(perCountryArrays)
+  );
+  //console.log(observableCountriesArray);
+  let [
+    topNConfirmedList,
+    topNDeathsList,
+    topNRatioList,
+    topNDailyConfirmedList,
+    topNDailyDeathsList,
+    topNDailyRatioList,
+  ] = sortTopNLists(perCountryArrays, dateIndex, n);
+  //console.log(topNConfirmedList);
+  const topConfirmedList = topNConfirmedList.filter((countryInfo) => {
+    return observableCountriesArray.some(
+      (country) => country === countryInfo.country
+    );
+  });
+  //console.log(topConfirmedList);
+  const topDeathsList = topNDeathsList.filter((countryInfo) => {
+    return observableCountriesArray.some(
+      (country) => country === countryInfo.country
+    );
+  });
+  const topRatioList = topNRatioList.filter((countryInfo) => {
+    return observableCountriesArray.some(
+      (country) => country === countryInfo.country
+    );
+  });
+  return [topConfirmedList, topDeathsList, topRatioList];
+};
+
+const sortTopNLists = (perCountryArrays, dateIndex, n) => {
   const completeList = Object.values(perCountryArrays[dateIndex]);
   // sorting the data
   const topNConfirmedList = getTopNList(completeList, "confirmed", n);
@@ -156,4 +190,38 @@ const getTopNList = (completeList, queryType, n) => {
   const sortedList = completeList.sort((a, b) => b[queryType] - a[queryType]);
   const topNList = sortedList.filter((register, index) => index <= n);
   return topNList;
+};
+
+export const getObservableList = (perCountryArrays) => {
+  let observableCountriesObj = {};
+  perCountryArrays.forEach((countryInfo, dateIndex) => {
+    let [
+      topNConfirmedList,
+      topNDeathsList,
+      topNRatioList,
+      topNDailyConfirmedList,
+      topNDailyDeathsList,
+      topNDailyRatioList,
+    ] = sortTopNLists(perCountryArrays, dateIndex, 11);
+
+    const confirmedCountriesObject = convertListToCountriesObject(
+      topNConfirmedList
+    );
+    const deathsCountriesObject = convertListToCountriesObject(topNDeathsList);
+    const ratioCountriesObject = convertListToCountriesObject(topNRatioList);
+    observableCountriesObj = {
+      ...observableCountriesObj,
+      ...confirmedCountriesObject,
+      ...deathsCountriesObject,
+      ...ratioCountriesObject,
+    };
+  });
+  return observableCountriesObj;
+};
+
+const convertListToCountriesObject = (list) => {
+  const listEntry = new Map(
+    list.map((countryInfo) => [countryInfo.country, 1])
+  );
+  return Object.fromEntries(listEntry);
 };

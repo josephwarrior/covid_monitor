@@ -1,14 +1,3 @@
-export const getRegistersFetchB = () => {
-  return fetch("./coviddata.json")
-    .then((response) => {
-      if (!response.ok) {
-        return response.json().then((err) => Promise.reject(err));
-      }
-      return response.json();
-    })
-    .then((dataObject) => dataObject.data);
-};
-
 export const getDataFetch = () => {
   const url = "https://covid-api.com/api/reports?date=2020-01-28";
   return fetch(url)

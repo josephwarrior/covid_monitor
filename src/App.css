@@ -196,3 +196,10 @@ button:hover .tooltip.arrow {
 .date-axis line {
   stroke: #282c34;
 }
+
+.slider:hover {
+  opacity: 1;
+  cursor: pointer;
+  stroke: gray;
+  stroke-width: 2;
+}

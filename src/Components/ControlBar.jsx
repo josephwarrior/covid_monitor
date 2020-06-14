@@ -11,11 +11,23 @@ import {
   axisTop,
   format,
   scaleTime,
+  drag,
+  event,
 } from "d3";
 import useResizeObserver from "../logic/useResizeObserver";
-import { convertStringToDate } from "../logic/utilFunctions";
+import {
+  convertStringToDate,
+  convertDateToString,
+} from "../logic/utilFunctions";
 
-const ControlBar = ({ datesArray, dateIndex, transitionTime }) => {
+const ControlBar = ({
+  datesArray,
+  dateIndex,
+  transitionTime,
+  setStart,
+  setDateIndex,
+  setListsForDateIndex,
+}) => {
   const svgRef = useRef();
 
   const wrapperRef = useRef();
@@ -31,16 +43,16 @@ const ControlBar = ({ datesArray, dateIndex, transitionTime }) => {
       0.8 * document.documentElement.clientWidth ||
       0.8 * document.getElementsByTagName("body")[0].clientWidth;
     const svgHeight =
-      0.05 * window.innerHeight ||
-      0.05 * document.documentElement.clientHeight ||
-      0.05 * document.getElementsByTagName("body")[0].clientHeight;
+      0.055 * window.innerHeight ||
+      0.055 * document.documentElement.clientHeight ||
+      0.055 * document.getElementsByTagName("body")[0].clientHeight;
     const svg = select(svgRef.current)
       .attr("width", svgWidth)
       .attr("height", svgHeight);
     const barWidth = 0.06 * svgHeight;
     const sliderWidth = (2 / 50) * svgWidth;
     const sliderHeight = barWidth * 12;
-    const margin = { top: 20, right: 0, bottom: 0, left: 0 };
+    const margin = { top: 20, right: 20, bottom: 0, left: 20 };
     const chartGroupWidth = svgWidth - margin.left - margin.right;
     const chartGroupHeight = svgHeight - margin.top - margin.bottom;
 
@@ -107,7 +119,7 @@ const ControlBar = ({ datesArray, dateIndex, transitionTime }) => {
         enter.append("g").attr("class", "date-axis").call(xAxis)
       );
 
-    chartGroup
+    const slider = chartGroup
       .selectAll(".slider")
       .data([dateIndex])
       .join(
@@ -139,6 +151,35 @@ const ControlBar = ({ datesArray, dateIndex, transitionTime }) => {
       .attr("rx", "1em")
       .attr("ry", "1em")
       .attr("opacity", 0.8);
+
+    slider.call(
+      drag()
+        .on("drag", () => {
+          setStart(false);
+          const dateString = positionSlider();
+          setDateIndex(datesArray.indexOf(dateString));
+          setListsForDateIndex(datesArray.indexOf(dateString));
+          //console.log(convertDateToString(xScale.invert(sliderX)));
+        })
+        .on("end", () => {
+          const dateString = positionSlider();
+          setListsForDateIndex(datesArray.indexOf(dateString));
+          //console.log(dateString);
+          //console.log(datesArray.indexOf(dateString));
+          //console.log("mouseup has been called");
+        })
+    );
+    const positionSlider = () => {
+      let sliderX = event.x;
+      let dateString = convertDateToString(xScale.invert(sliderX));
+      slider.attr("x", event.x - sliderWidth / 2);
+      return dateString;
+    };
+
+    let datePromise = new Promise(function (resolve, reject) {
+      resolve(() => setDateIndex(100));
+    });
+
     /* chartGroup
       .append("rect")
       .attr("y", -(barWidth + (sliderHeight - barWidth) / 2))

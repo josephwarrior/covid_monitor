@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 //import ListView from "./Components/ListView";
-import { getDateCountryListObject, sortTopNLists } from "./logic/utilFunctions";
-import { getRegistersFetchB } from "./logic/services";
+import {
+  getDateCountryListObject,
+  getTopLists,
+  getObservableList,
+} from "./logic/utilFunctions";
+import { getRegistersFetch } from "./logic/services";
 import RacingBarChart from "./Components/RacingBarChart";
 import ControlBar from "./Components/ControlBar";
 import { data } from "./logic/coviddata.json";
@@ -26,10 +30,9 @@ function App() {
   const [isReseted, setIsReseted] = useState(false);
 
   useEffect(() => {
-    //getRegistersFetchB()
-    // .then(
-    // (data) => {
-    console.log(data);
+    //getRegistersFetch()
+    // .then((data) => {
+    // console.log(data);
     const [retrievedListObject, countryList] = getDateCountryListObject(data);
     setAllCountries(Object.values(countryList));
     setPerCountryArrays(Object.values(retrievedListObject));
@@ -61,6 +64,9 @@ function App() {
     });
 
     setDatesArray(Object.keys(retrievedListObject));
+
+    getObservableList(Object.values(retrievedListObject));
+
     const initialPerCountryListObject = Object.values(retrievedListObject)[0];
     const initialPerCountryArray = Object.values(initialPerCountryListObject);
     setConfirmedList(initialPerCountryArray);
@@ -70,9 +76,8 @@ function App() {
     setDailyDeathsList(initialPerCountryArray);
     setDailyRatioList(initialPerCountryArray);
     setIsLoading(false);
-    //};
-    /*)
-      .catch((error) => console.log(error));*/
+    // })
+    // .catch((error) => console.log(error));
   }, []);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -81,22 +86,26 @@ function App() {
       setStart(false);
     }
     setDateIndex(dateIndex);
-
-    const [
-      topNConfirmedList,
-      topNDeathsList,
-      topNRatioList,
-      topNDailyConfirmedList,
-      topNDailyDeathsList,
-      topNDailyRatioList,
-    ] = sortTopNLists(perCountryArrays, dateIndex, 300);
-    setConfirmedList(topNConfirmedList);
-    setDeathsList(topNDeathsList);
-    setRatioList(topNRatioList);
-    setDailyConfirmedList(topNDailyConfirmedList);
-    setDailyDeathsList(topNDailyDeathsList);
-    setDailyRatioList(topNDailyRatioList);
+    setListsForDateIndex(dateIndex);
     dateIndex++;
+  };
+
+  const setListsForDateIndex = (dateIndex) => {
+    const [
+      topConfirmedList,
+      topDeathsList,
+      topRatioList,
+      /*  topNDailyConfirmedList,
+      topNDailyDeathsList,
+      topNDailyRatioList, */
+    ] = getTopLists(perCountryArrays, dateIndex, 300);
+    setConfirmedList(topConfirmedList);
+    setDeathsList(topDeathsList);
+    setRatioList(topRatioList);
+    //console.log(topConfirmedList);
+    /* setDailyConfirmedList(topNDailyConfirmedList);
+    setDailyDeathsList(topNDailyDeathsList);
+    setDailyRatioList(topNDailyRatioList); */
   };
 
   useEffect(() => {
@@ -115,9 +124,9 @@ function App() {
     setConfirmedList(Object.values(perCountryArrays[0]));
     setDeathsList(Object.values(perCountryArrays[0]));
     setRatioList(Object.values(perCountryArrays[0]));
-    setDailyConfirmedList(Object.values(perCountryArrays[0]));
+    /*  setDailyConfirmedList(Object.values(perCountryArrays[0]));
     setDailyDeathsList(Object.values(perCountryArrays[0]));
-    setDailyRatioList(Object.values(perCountryArrays[0]));
+    setDailyRatioList(Object.values(perCountryArrays[0])); */
   };
 
   return (
@@ -154,6 +163,9 @@ function App() {
           datesArray={datesArray}
           dateIndex={dateIndex}
           transitionTime={transitionTime}
+          setStart={setStart}
+          setDateIndex={setDateIndex}
+          setListsForDateIndex={setListsForDateIndex}
         />
       )}
       {isLoading ? (
@@ -167,6 +179,7 @@ function App() {
             transitionTime={transitionTime}
             isReseted={isReseted}
             chartTitle={"Confirmed cases"}
+            dateIndex={dateIndex}
           />
           <RacingBarChart
             list={deathsList}
@@ -175,6 +188,7 @@ function App() {
             transitionTime={transitionTime}
             isReseted={isReseted}
             chartTitle={"Deaths"}
+            dateIndex={dateIndex}
           />
           <RacingBarChart
             list={ratioList}
@@ -183,6 +197,7 @@ function App() {
             transitionTime={transitionTime}
             isReseted={isReseted}
             chartTitle={"Fatality %"}
+            dateIndex={dateIndex}
           />
         </div>
       )}

@@ -43,7 +43,7 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/registers", (req, res) => {
-  console.log("service has been requested");
+  //console.log("service has been requested");
   Register.find((err, result) => {
     if (err) return console.log(err);
 

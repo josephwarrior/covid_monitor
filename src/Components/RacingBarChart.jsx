@@ -20,6 +20,7 @@ const RacingBarChart = ({
   transitionTime,
   isReseted,
   chartTitle,
+  dateIndex,
 }) => {
   const svgRef = useRef();
   const wrapperRef = useRef();
@@ -156,7 +157,7 @@ const RacingBarChart = ({
       //.text((entry) => `${entry.country}-${entry[queryType]}`)
       .attr("x", 10)
       .attr("y", (entry, index) => yScale(index) + 0.7 * barwidth);
-  }, [list, dimensions]);
+  }, [list, dimensions, dateIndex]);
 
   const addComma = (numberString) => {
     return format(",.0f")(numberString);
