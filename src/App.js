@@ -7,7 +7,7 @@ import {
   getObservableList,
 } from "./logic/utilFunctions";
 import { getRegistersFetch } from "./logic/services";
-import RacingBarChart from "./Components/RacingBarChart";
+import RacingBarChart2 from "./Components/RacingBarChart2";
 import ControlBar from "./Components/ControlBar";
 import { data } from "./logic/coviddata.json";
 
@@ -19,6 +19,7 @@ function App() {
   const [dailyConfirmedList, setDailyConfirmedList] = useState({});
   const [dailyDeathsList, setDailyDeathsList] = useState({});
   const [dailyRatioList, setDailyRatioList] = useState({});
+  const [completeConfirmedLists, setCompleteConfirmedLists] = useState({});
 
   const [start, setStart] = useState(false);
   let [dateIndex, setDateIndex] = useState(0);
@@ -36,7 +37,10 @@ function App() {
     const [retrievedListObject, countryList] = getDateCountryListObject(data);
     setAllCountries(Object.values(countryList));
     setPerCountryArrays(Object.values(retrievedListObject));
-
+    const [observableCountriesObj, completeConfirmedLists] = getObservableList(
+      Object.values(retrievedListObject)
+    );
+    setCompleteConfirmedLists(completeConfirmedLists);
     Object.values(retrievedListObject).forEach((listForCountry) => {
       Object.values(listForCountry).forEach((entry) => {
         //if (entry.country === "France") console.log(entry);
@@ -108,14 +112,14 @@ function App() {
     setDailyRatioList(topNDailyRatioList); */
   };
 
-  useEffect(() => {
+  /*  useEffect(() => {
     if (start && dateIndex < perCountryArrays.length) {
       const id = setInterval(selectNewLists, transitionTime);
       setIntervalId(id);
     } else {
       clearInterval(intervalId);
     }
-  }, [start]);
+  }, [start]); */
 
   const resetear = () => {
     setIsReseted(true);
@@ -172,14 +176,15 @@ function App() {
         <p>LOADING ...</p>
       ) : (
         <div className="racing-bars-container">
-          <RacingBarChart
-            list={confirmedList}
+          <RacingBarChart2
+            //list={confirmedList}
             allCountries={allCountries}
             queryType={"confirmed"}
             transitionTime={transitionTime}
             isReseted={isReseted}
             chartTitle={"Confirmed cases"}
-            dateIndex={dateIndex}
+            completeConfirmedLists={completeConfirmedLists}
+            start={start}
           />
         </div>
       )}

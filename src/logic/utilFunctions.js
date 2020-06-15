@@ -194,6 +194,7 @@ const getTopNList = (completeList, queryType, n) => {
 
 export const getObservableList = (perCountryArrays) => {
   let observableCountriesObj = {};
+  let completeConfirmedLists = {};
   perCountryArrays.forEach((countryInfo, dateIndex) => {
     let [
       topNConfirmedList,
@@ -203,7 +204,8 @@ export const getObservableList = (perCountryArrays) => {
       topNDailyDeathsList,
       topNDailyRatioList,
     ] = sortTopNLists(perCountryArrays, dateIndex, 11);
-
+    let completeDate = topNConfirmedList[0].date;
+    completeConfirmedLists[completeDate] = topNConfirmedList;
     const confirmedCountriesObject = convertListToCountriesObject(
       topNConfirmedList
     );
@@ -216,7 +218,7 @@ export const getObservableList = (perCountryArrays) => {
       ...ratioCountriesObject,
     };
   });
-  return observableCountriesObj;
+  return [observableCountriesObj, completeConfirmedLists];
 };
 
 const convertListToCountriesObject = (list) => {
