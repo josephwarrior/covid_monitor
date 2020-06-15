@@ -181,24 +181,6 @@ function App() {
             chartTitle={"Confirmed cases"}
             dateIndex={dateIndex}
           />
-          <RacingBarChart
-            list={deathsList}
-            allCountries={allCountries}
-            queryType={"deaths"}
-            transitionTime={transitionTime}
-            isReseted={isReseted}
-            chartTitle={"Deaths"}
-            dateIndex={dateIndex}
-          />
-          <RacingBarChart
-            list={ratioList}
-            allCountries={allCountries}
-            queryType={"ratio"}
-            transitionTime={transitionTime}
-            isReseted={isReseted}
-            chartTitle={"Fatality %"}
-            dateIndex={dateIndex}
-          />
         </div>
       )}
     </div>
