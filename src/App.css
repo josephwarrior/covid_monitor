@@ -85,15 +85,18 @@ span {
   margin-left: 50px;
 }
 
-.racing-bars-container {
+svg {
   display: grid;
-  height: 50rem;
+  /*height: 50rem; */
+  grid-template-columns: 33% 33% 33%;
+  grid-template-rows: auto auto auto;
   overflow: auto;
 }
 
 @media only screen and (min-width: 769px) {
-  .racing-bars-container {
+  svg {
     grid-template-columns: 33% 33% 33%;
+    grid-template-rows: auto auto auto;
   }
 }
 
@@ -102,6 +105,17 @@ span {
     grid-template-columns: 33% 33% 33%;
   }
 } */
+
+.controlbar-group {
+  grid-column-start: 1;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+.chart-group {
+  grid-column: 1/2;
+  grid-row: 2/3;
+}
 
 .hidden {
   visibility: hidden;

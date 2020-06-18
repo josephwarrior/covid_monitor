@@ -7,7 +7,7 @@ import {
   getObservableList,
 } from "./logic/utilFunctions";
 import { getRegistersFetch } from "./logic/services";
-import RacingBarChart2 from "./Components/RacingBarChart2";
+import RacingBarChart3 from "./Components/RacingBarChart3";
 import ControlBar from "./Components/ControlBar";
 import { data } from "./logic/coviddata.json";
 
@@ -27,7 +27,7 @@ function App() {
   const [datesArray, setDatesArray] = useState([]);
 
   const [intervalId, setIntervalId] = useState(0);
-  const [transitionTime, setTransitionTime] = useState(1000);
+  const [transitionTime, setTransitionTime] = useState(300);
   const [isReseted, setIsReseted] = useState(false);
 
   useEffect(() => {
@@ -160,31 +160,24 @@ function App() {
           <span className="tooltip arrow"></span>
         </button>
       </div>
-      {isLoading ? (
-        <p>loading...</p>
-      ) : (
-        <ControlBar
-          datesArray={datesArray}
-          dateIndex={dateIndex}
-          transitionTime={transitionTime}
-          setStart={setStart}
-          setDateIndex={setDateIndex}
-          setListsForDateIndex={setListsForDateIndex}
-        />
-      )}
+
       {isLoading ? (
         <p>LOADING ...</p>
       ) : (
         <div className="racing-bars-container">
-          <RacingBarChart2
+          <RacingBarChart3
             //list={confirmedList}
             allCountries={allCountries}
             queryType={"confirmed"}
             transitionTime={transitionTime}
             isReseted={isReseted}
+            setStart={setStart}
+            setIsReseted={setIsReseted}
             chartTitle={"Confirmed cases"}
             completeConfirmedLists={completeConfirmedLists}
             start={start}
+            datesArray={datesArray}
+            setDateInd={setDateIndex}
           />
         </div>
       )}

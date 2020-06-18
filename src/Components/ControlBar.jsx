@@ -154,19 +154,12 @@ const ControlBar = ({
 
     slider.call(
       drag()
+        .on("start", () => positionSlider())
         .on("drag", () => {
-          setStart(false);
           const dateString = positionSlider();
-          setDateIndex(datesArray.indexOf(dateString));
-          setListsForDateIndex(datesArray.indexOf(dateString));
-          //console.log(convertDateToString(xScale.invert(sliderX)));
         })
         .on("end", () => {
           const dateString = positionSlider();
-          setListsForDateIndex(datesArray.indexOf(dateString));
-          //console.log(dateString);
-          //console.log(datesArray.indexOf(dateString));
-          //console.log("mouseup has been called");
         })
     );
     const positionSlider = () => {
