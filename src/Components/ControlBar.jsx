@@ -1,20 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import {
-  select,
-  scaleLinear,
-  max,
-  schemeSet2,
-  scaleOrdinal,
-  easeLinear,
-  interpolate,
-  extent,
-  axisTop,
-  format,
-  scaleTime,
-  drag,
-  event,
-} from "d3";
-import useResizeObserver from "../logic/useResizeObserver";
+import { select, easeLinear, axisTop, scaleTime, drag, event } from "d3";
+
 import {
   convertStringToDate,
   convertDateToString,
@@ -26,100 +12,76 @@ const ControlBar = ({
   transitionTime,
   setStart,
   setDateIndex,
-  setListsForDateIndex,
+  setIsReseted,
 }) => {
   const svgRef = useRef();
 
   const wrapperRef = useRef();
-  const dimensions = useResizeObserver(wrapperRef);
 
   const [scaleMax, setScaleMax] = useState(0);
 
   useEffect(() => {
-    //console.log(document.activeElement.clientHeight);
+    let svgWidth =
+      1 * window.innerWidth ||
+      1 * document.documentElement.clientWidth ||
+      1 * document.getElementsByTagName("body")[0].clientWidth;
 
-    const svgWidth =
-      0.8 * window.innerWidth ||
-      0.8 * document.documentElement.clientWidth ||
-      0.8 * document.getElementsByTagName("body")[0].clientWidth;
     const svgHeight =
-      0.055 * window.innerHeight ||
-      0.055 * document.documentElement.clientHeight ||
-      0.055 * document.getElementsByTagName("body")[0].clientHeight;
+      0.07 * window.innerHeight ||
+      0.07 * document.documentElement.clientHeight ||
+      0.07 * document.getElementsByTagName("body")[0].clientHeight;
+    const controlWidth = svgWidth * 0.95;
+    const controlHeight = (6 / 185) * svgHeight;
+    const barWidth = (25 / 185) * svgHeight;
+    const margin = { top: 20, right: 40, bottom: 20, left: 40 };
+    const controlGroupWidth = svgWidth - margin.left - margin.right;
+    const controlGroupHeight = svgHeight - margin.top - margin.bottom;
+    const sliderWidth = (2 / 50) * svgWidth;
+    const sliderHeight = controlHeight * 20;
     const svg = select(svgRef.current)
       .attr("width", svgWidth)
       .attr("height", svgHeight);
-    const barWidth = 0.06 * svgHeight;
-    const sliderWidth = (2 / 50) * svgWidth;
-    const sliderHeight = barWidth * 12;
-    const margin = { top: 20, right: 20, bottom: 0, left: 20 };
-    const chartGroupWidth = svgWidth - margin.left - margin.right;
-    const chartGroupHeight = svgHeight - margin.top - margin.bottom;
 
-    /* const yScale = scaleLinear()
-      .domain(extent(list, (value, index) => index))
-      .range([0, (list.length * svgHeight) / 10.7]); */
+    let minDate = convertStringToDate(datesArray[0]);
+    let maxDate = convertStringToDate(datesArray[datesArray.length - 1]);
 
-    /* const calculateScaleMax = () => {
-      const instantMax = max(list, (entry) => entry[queryType]);
-
-      if (instantMax < scaleMax / 1.1 && !isReseted) {
-        return scaleMax;
-      } else {
-        const newMax =
-          queryType.includes("atio") && instantMax * 2 > 100
-            ? 100
-            : instantMax * 2;
-        setScaleMax(newMax);
-        return newMax;
-      }
-    }; */
-
-    const minDate = convertStringToDate(datesArray[0]);
-    const maxDate = convertStringToDate(datesArray[datesArray.length - 1]);
-
-    const xScale = scaleTime()
+    let xScale = scaleTime()
       .domain([minDate, maxDate])
-      .range([0, chartGroupWidth]);
+      .range([0, controlGroupWidth]);
 
-    const xAxis = axisTop(xScale).ticks(5);
-    /*  const colorScale = scaleOrdinal()
-      .domain(allCountries.map((country) => country))
-      .range(schemeSet2); */
+    let xAxis = axisTop(xScale).ticks(5);
 
-    const chartGroup = svg
+    const controlBarGroup = svg
       .selectAll(".controlbar-group")
       .data([1])
       .join((enter) =>
         enter
           .append("g")
           .attr("class", "controlbar-group")
-          .attr("height", chartGroupHeight)
-          .attr("width", chartGroupWidth)
+          .attr("height", controlGroupHeight)
+          .attr("width", controlGroupWidth)
       )
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    //console.log(chartGroup);
-    chartGroup
+    controlBarGroup
       .selectAll(".across-bar")
       .data([dateIndex])
       .join((enter) => enter.append("rect").attr("class", "across-bar"))
       .attr("x", 0)
       .attr("y", -barWidth)
-      .attr("width", chartGroupWidth)
+      .attr("width", controlGroupWidth)
       .attr("height", barWidth)
       .attr("fill", "gray");
 
-    //console.log(document.getElementsByClassName("across-bar")[0]);
-
-    chartGroup
+    controlBarGroup
       .selectAll(".date-axis")
       .data([1])
-      .join((enter) =>
-        enter.append("g").attr("class", "date-axis").call(xAxis)
+      .join(
+        (enter) => enter.append("g").attr("class", "date-axis").call(xAxis),
+        (update) => update.call(xAxis)
       );
 
-    const slider = chartGroup
+    const slider = controlBarGroup
       .selectAll(".slider")
       .data([dateIndex])
       .join(
@@ -154,42 +116,50 @@ const ControlBar = ({
 
     slider.call(
       drag()
-        .on("start", () => positionSlider())
+        .on("start", () => {
+          setIsReseted(false);
+          let [dateString, newDateIndex] = positionSlider();
+          dateIndex = newDateIndex;
+          setDateIndex(newDateIndex);
+          setStart(false);
+        })
         .on("drag", () => {
-          const dateString = positionSlider();
+          let [dateString, newDateIndex] = positionSlider();
+          dateIndex = newDateIndex;
+          setDateIndex(newDateIndex);
         })
         .on("end", () => {
-          const dateString = positionSlider();
+          let [dateString, newDateIndex] = positionSlider();
+          dateIndex = newDateIndex;
+          setDateIndex(newDateIndex);
         })
     );
     const positionSlider = () => {
-      let sliderX = event.x;
-      let dateString = convertDateToString(xScale.invert(sliderX));
-      slider.attr("x", event.x - sliderWidth / 2);
-      return dateString;
+      let sliderCenterX = event.x < 0 ? 0 : event.x;
+      sliderCenterX =
+        sliderCenterX > controlWidth ? controlWidth : sliderCenterX;
+      slider
+        .transition()
+        .duration(20)
+        .attr("x", sliderCenterX - sliderWidth / 2);
+      let dateString = convertDateToString(xScale.invert(sliderCenterX));
+
+      const newDateIndex = datesArray.indexOf(dateString);
+      return [dateString, newDateIndex];
     };
 
     let datePromise = new Promise(function (resolve, reject) {
       resolve(() => setDateIndex(100));
     });
-
-    /* chartGroup
-      .append("rect")
-      .attr("y", -(barWidth + (sliderHeight - barWidth) / 2))
-      .attr("width", sliderWidth)
-      .attr("height", sliderHeight)
-      .attr("fill", "gray")
-      .attr("stroke-width", "10em")
-      .attr("rx", "1em")
-      .attr("ry", "1em")
-      .attr("opacity", 0.8)
-      .attr("x", xScale(convertStringToDate(datesArray[dateIndex])));
- */
-    //console.log(datesArray[dateIndex]);
-  }, [dateIndex]);
+  }, [
+    dateIndex,
+    window.innerWidth,
+    document.documentElement.clientWidth,
+    document.getElementsByTagName("body")[0].clientWidth,
+  ]);
 
   return (
-    <div ref={wrapperRef} style={{ marginBottom: "1rem" }}>
+    <div style={{ marginBottom: "1rem" }}>
       <svg ref={svgRef}></svg>
     </div>
   );

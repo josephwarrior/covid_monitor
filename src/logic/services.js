@@ -25,11 +25,6 @@ export const getMultipleDataFetch = () => {
   return Promise.all(getFetchArray())
     .then((allResponses) => {
       return Promise.all(allResponses.map((response) => response.json()));
-      //return allResponses;
-      /* if (!response.ok) {
-        return response.json().then((err) => Promise.reject(err));
-      }*/
-      //   return response;
     })
     .then((dataObject) => {
       return dataObject;

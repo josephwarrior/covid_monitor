@@ -43,15 +43,14 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/registers", (req, res) => {
-  //console.log("service has been requested");
   Register.find((err, result) => {
     if (err) return console.log(err);
 
-    /*  try {
-      fs.writeFile("coviddata.json", JSON.stringify({ data: result }));
+    try {
+      fs.writeFile("coviddata2.json", JSON.stringify({ data: result }));
     } catch (err) {
       console.log(err);
-    } */
+    }
 
     res.status(200).json({ data: result });
   });
@@ -72,13 +71,10 @@ app.post("/registers", (req, res) => {
 });
 
 app.get("/registersfromsource", (req, res) => {
-  getMultipleDataFetch("2020-05-22", "2020-06-08")
+  getMultipleDataFetch("2020-06-08", "2020-06-18")
     .then((sourceDataArray) => {
-      // console.log(sourceDataObject);
       const retrievedListObject = transformDataToListObject(sourceDataArray);
-      //console.log(retrievedArray);
       const registerArray = Object.values(retrievedListObject);
-      //console.log(registerArray);
       Register.insertMany(registerArray, (err, result) => {
         if (err) return Promise.reject(err);
         res.status(200).json({ data: result });

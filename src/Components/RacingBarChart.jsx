@@ -11,81 +11,122 @@ import {
   axisTop,
   format,
 } from "d3";
-import useResizeObserver from "../logic/useResizeObserver";
 
 const RacingBarChart = ({
-  list,
   allCountries,
   queryType,
   transitionTime,
   isReseted,
   chartTitle,
+  completeLists,
+  start,
   dateIndex,
+  setDateIndex,
 }) => {
+  const [list, setList] = useState(Object.values(completeLists)[0]);
+  let [intervalId, setIntervalId] = useState(0);
+
   const svgRef = useRef();
-  const wrapperRef = useRef();
-  const dimensions = useResizeObserver(wrapperRef);
 
   const [scaleMax, setScaleMax] = useState(0);
 
-  // will be called initially and on every data change
-  useEffect(() => {
-    //console.log(list);
-    const svgWidth = 300;
-    const svgHeight = 300;
-    const barwidth = (15 / 185) * svgHeight;
-    const margin = { top: 20, right: 20, bottom: 0, left: 10 };
-    const chartGroupWidth = svgWidth - margin.left - margin.right;
-    const chartGroupHeight = svgHeight - margin.top - margin.bottom;
+  const updateList = () => {
+    if (dateIndex === Object.values(completeLists).length - 1) {
+      clearInterval(intervalId);
+      return;
+    }
+    setList(Object.values(completeLists)[dateIndex]);
 
-    const svg = select(svgRef.current)
-      .attr("width", svgWidth)
-      .attr("height", svgHeight);
-    if (!dimensions) return;
+    dateIndex = dateIndex + 1;
+    setDateIndex(dateIndex);
+  };
+
+  useEffect(() => {
+    if (start && intervalId === 0) {
+      intervalId = setInterval(() => updateList(), transitionTime);
+      setIntervalId(intervalId);
+    } else {
+      intervalId !== 0 && clearInterval(intervalId);
+      intervalId = 0;
+      setIntervalId(0);
+    }
+  }, [start]);
+
+  const browserWidth =
+    1 * window.innerWidth ||
+    1 * document.documentElement.clientWidth ||
+    1 * document.getElementsByTagName("body")[0].clientWidth;
+  const svgWidth = browserWidth <= 768 ? browserWidth : browserWidth / 3;
+  const svgHeight =
+    1 * window.innerHeight ||
+    1 * document.documentElement.clientHeight ||
+    1 * document.getElementsByTagName("body")[0].clientHeight;
+  const controlWidth = svgWidth * 0.95;
+  const controlBarWidth = (1 / 185) * svgHeight;
+  const barwidth = (6 / 185) * svgHeight;
+  const confMargin = { top: 30, right: 40, bottom: 0, left: 40 };
+  const chartGroupWidth = svgWidth - confMargin.left - confMargin.right;
+  const chartGroupHeight = svgHeight - confMargin.top - confMargin.bottom;
+  const sliderWidth = (2 / 50) * svgWidth;
+  const sliderHeight = controlBarWidth * 12;
+  const svg = select(svgRef.current)
+    .attr("width", svgWidth)
+    .attr("height", barwidth * 14.3);
+
+  const chartGroup = svg
+    .selectAll(".chart-group")
+    .data([1])
+    .join((enter) =>
+      enter
+        .append("g")
+        .attr("class", "chart-group")
+        .attr("height", chartGroupHeight)
+        .attr("width", chartGroupWidth)
+    )
+    .attr(
+      "transform",
+      "translate(" + confMargin.left + "," + confMargin.top + ")"
+    );
+
+  useEffect(() => {
+    if (isReseted) {
+      setDateIndex(0);
+    }
+    setList(Object.values(completeLists)[dateIndex]);
 
     const yScale = scaleLinear()
-      .domain(extent(list, (value, index) => index)) // [0,1,2,3,4,5]
-      .range([0, (list.length * svgHeight) / 10.7]);
+      .domain(extent(list, (value, index) => index))
+      .range([0.3 * barwidth, 0.3 * barwidth + list.length * barwidth * 1.2]);
 
     const calculateScaleMax = () => {
-      // console.log("calculatemax");
       const instantMax = max(list, (entry) => entry[queryType]);
-      // console.log(instantMax);
-      if (instantMax < scaleMax / 1.1 && !isReseted) {
-        return scaleMax;
-      } else {
-        const newMax =
+      let newMax = scaleMax;
+      if (instantMax > 0.9 * scaleMax) {
+        newMax =
           queryType.includes("atio") && instantMax * 2 > 100
             ? 100
             : instantMax * 2;
         setScaleMax(newMax);
         return newMax;
+      } else if (instantMax < 0.1 * scaleMax && queryType.includes("atio")) {
+        newMax = 20;
+        setScaleMax(newMax);
+        return newMax;
+      } else if (instantMax < 0.3 * scaleMax) {
+        newMax = instantMax * 1.25;
+        setScaleMax(newMax);
+        return newMax;
       }
+      return newMax;
     };
-    //console.log(scaleMax);
 
     const xScale = scaleLinear()
-      .domain([0, calculateScaleMax()]) // [0, 65 (example)]
-      .range([0, chartGroupWidth]); // [0, 400 (example)]
-
+      .domain([0, calculateScaleMax()])
+      .range([0, chartGroupWidth]);
     const xAxis = axisTop(xScale).ticks(5);
-    //console.log(list.map((value, index) => index));
-    //console.log(zScale(5));
     const colorScale = scaleOrdinal()
       .domain(allCountries.map((country) => country))
       .range(schemeSet2);
-
-    const chartGroup = svg
-      .selectAll(".chart-group")
-      .data([1])
-      .join((enter) =>
-        enter
-          .append("g")
-          .attr("class", "chart-group")
-          .attr("height", chartGroupHeight)
-          .attr("width", chartGroupWidth)
-      )
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     chartGroup
       .selectAll(".x-axis")
@@ -98,12 +139,8 @@ const RacingBarChart = ({
             .duration(transitionTime)
             .ease(easeLinear)
             .call(xAxis)
-        // function exit() {
-        // select(this).remove();
-        //}
       );
 
-    // draw the bars
     chartGroup
       .selectAll(".bar")
       .data(list, (entry, index) => entry.country)
@@ -114,8 +151,8 @@ const RacingBarChart = ({
       .attr("class", "bar")
       .attr("x", 0)
       .attr("height", barwidth)
-      .attr("rx", svgHeight / 30)
-      .attr("ry", svgWidth / 30)
+      .attr("rx", svgHeight / 90)
+      .attr("ry", svgWidth / 90)
       .transition()
       .duration(transitionTime)
       .ease(easeLinear)
@@ -124,7 +161,6 @@ const RacingBarChart = ({
       })
       .attr("y", (entry, index) => yScale(index));
 
-    // draw the labels
     chartGroup
       .selectAll(".label")
       .data(list, (entry, index) => entry.country)
@@ -137,9 +173,8 @@ const RacingBarChart = ({
             (entry) => `${entry.country} - ${format(",.0f")(entry[queryType])}`
           )
       )
-      // .text((entry, index, array) => `${entry.country} - ${entry[queryType]}`)
       .attr("class", "label")
-      .attr("font-size", `${(10 / 185) * svgHeight}px`)
+      .attr("font-size", `${0.7 * barwidth}px`)
       .transition()
       .duration(transitionTime)
       .ease(easeLinear)
@@ -154,10 +189,9 @@ const RacingBarChart = ({
           )}   `);
         };
       })
-      //.text((entry) => `${entry.country}-${entry[queryType]}`)
       .attr("x", 10)
       .attr("y", (entry, index) => yScale(index) + 0.7 * barwidth);
-  }, [list, dimensions, dateIndex]);
+  }, [start, isReseted, list, dateIndex, svg]);
 
   const addComma = (numberString) => {
     return format(",.0f")(numberString);
@@ -168,7 +202,7 @@ const RacingBarChart = ({
   };
 
   return (
-    <div ref={wrapperRef} style={{ marginBottom: "2rem" }}>
+    <div style={{ marginBottom: "2rem" }}>
       <h3>{chartTitle}</h3>
       <svg ref={svgRef}></svg>
     </div>

@@ -1,87 +1,52 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-//import ListView from "./Components/ListView";
 import {
   getDateCountryListObject,
-  getTopLists,
   getObservableList,
+  getCompleteRatioLists,
 } from "./logic/utilFunctions";
-import { getRegistersFetch } from "./logic/services";
-import RacingBarChart3 from "./Components/RacingBarChart3";
-import ControlBar from "./Components/ControlBar";
+
+import RacingBarChart from "./Components/RacingBarChart";
+
 import { data } from "./logic/coviddata.json";
+import ControlBar from "./Components/ControlBar";
 
 function App() {
   const [perCountryArrays, setPerCountryArrays] = useState([]);
-  const [confirmedList, setConfirmedList] = useState({});
-  const [deathsList, setDeathsList] = useState({});
-  const [ratioList, setRatioList] = useState({});
-  const [dailyConfirmedList, setDailyConfirmedList] = useState({});
-  const [dailyDeathsList, setDailyDeathsList] = useState({});
-  const [dailyRatioList, setDailyRatioList] = useState({});
   const [completeConfirmedLists, setCompleteConfirmedLists] = useState({});
+  const [completeDeathsLists, setCompleteDeathsLists] = useState({});
+  const [completeRatioLists, setCompleteRatioLists] = useState({});
 
   const [start, setStart] = useState(false);
   let [dateIndex, setDateIndex] = useState(0);
   const [allCountries, setAllCountries] = useState([]);
   const [datesArray, setDatesArray] = useState([]);
 
-  const [intervalId, setIntervalId] = useState(0);
   const [transitionTime, setTransitionTime] = useState(300);
   const [isReseted, setIsReseted] = useState(false);
 
   useEffect(() => {
-    //getRegistersFetch()
-    // .then((data) => {
-    // console.log(data);
     const [retrievedListObject, countryList] = getDateCountryListObject(data);
     setAllCountries(Object.values(countryList));
     setPerCountryArrays(Object.values(retrievedListObject));
-    const [observableCountriesObj, completeConfirmedLists] = getObservableList(
+    const [
+      observableCountriesObj,
+      completeConfirmedLists,
+      completeDeathsLists,
+    ] = getObservableList(Object.values(retrievedListObject));
+    const completeRatioLists = getCompleteRatioLists(
       Object.values(retrievedListObject)
     );
+
     setCompleteConfirmedLists(completeConfirmedLists);
-    Object.values(retrievedListObject).forEach((listForCountry) => {
-      Object.values(listForCountry).forEach((entry) => {
-        //if (entry.country === "France") console.log(entry);
-        if (
-          entry.deaths < 0 ||
-          entry.confirmed < 0 ||
-          entry.dailyConfirmed < 0 ||
-          entry.daylyDeaths < 0
-        ) {
-          console.log(
-            entry.country +
-              ", date: " +
-              entry.date +
-              ", deaths: " +
-              entry.deaths +
-              ", confirmed: " +
-              entry.confirmed +
-              ", dailyConfirmed: " +
-              entry.dailyConfirmed +
-              ", dailyDeaths: " +
-              entry.dailyDeaths
-          );
-        }
-      });
-    });
+    setCompleteDeathsLists(completeDeathsLists);
+    setCompleteRatioLists(completeRatioLists);
 
     setDatesArray(Object.keys(retrievedListObject));
 
     getObservableList(Object.values(retrievedListObject));
 
-    const initialPerCountryListObject = Object.values(retrievedListObject)[0];
-    const initialPerCountryArray = Object.values(initialPerCountryListObject);
-    setConfirmedList(initialPerCountryArray);
-    setDeathsList(initialPerCountryArray);
-    setRatioList(initialPerCountryArray);
-    setDailyConfirmedList(initialPerCountryArray);
-    setDailyDeathsList(initialPerCountryArray);
-    setDailyRatioList(initialPerCountryArray);
     setIsLoading(false);
-    // })
-    // .catch((error) => console.log(error));
   }, []);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -90,47 +55,14 @@ function App() {
       setStart(false);
     }
     setDateIndex(dateIndex);
-    setListsForDateIndex(dateIndex);
+
     dateIndex++;
   };
-
-  const setListsForDateIndex = (dateIndex) => {
-    const [
-      topConfirmedList,
-      topDeathsList,
-      topRatioList,
-      /*  topNDailyConfirmedList,
-      topNDailyDeathsList,
-      topNDailyRatioList, */
-    ] = getTopLists(perCountryArrays, dateIndex, 300);
-    setConfirmedList(topConfirmedList);
-    setDeathsList(topDeathsList);
-    setRatioList(topRatioList);
-    //console.log(topConfirmedList);
-    /* setDailyConfirmedList(topNDailyConfirmedList);
-    setDailyDeathsList(topNDailyDeathsList);
-    setDailyRatioList(topNDailyRatioList); */
-  };
-
-  /*  useEffect(() => {
-    if (start && dateIndex < perCountryArrays.length) {
-      const id = setInterval(selectNewLists, transitionTime);
-      setIntervalId(id);
-    } else {
-      clearInterval(intervalId);
-    }
-  }, [start]); */
 
   const resetear = () => {
     setIsReseted(true);
     setStart(false);
     setDateIndex(0);
-    setConfirmedList(Object.values(perCountryArrays[0]));
-    setDeathsList(Object.values(perCountryArrays[0]));
-    setRatioList(Object.values(perCountryArrays[0]));
-    /*  setDailyConfirmedList(Object.values(perCountryArrays[0]));
-    setDailyDeathsList(Object.values(perCountryArrays[0]));
-    setDailyRatioList(Object.values(perCountryArrays[0])); */
   };
 
   return (
@@ -160,25 +92,58 @@ function App() {
           <span className="tooltip arrow"></span>
         </button>
       </div>
+      {isLoading ? (
+        <p>LOADING ...</p>
+      ) : (
+        <ControlBar
+          datesArray={datesArray}
+          transitionTime={transitionTime}
+          dateIndex={dateIndex}
+          setDateIndex={setDateIndex}
+          setStart={setStart}
+          setIsReseted={setIsReseted}
+        />
+      )}
 
       {isLoading ? (
         <p>LOADING ...</p>
       ) : (
-        <div className="racing-bars-container">
-          <RacingBarChart3
-            //list={confirmedList}
-            allCountries={allCountries}
-            queryType={"confirmed"}
-            transitionTime={transitionTime}
-            isReseted={isReseted}
-            setStart={setStart}
-            setIsReseted={setIsReseted}
-            chartTitle={"Confirmed cases"}
-            completeConfirmedLists={completeConfirmedLists}
-            start={start}
-            datesArray={datesArray}
-            setDateInd={setDateIndex}
-          />
+        <div className="rbc-parent">
+          <div className="racing-bars-container">
+            <RacingBarChart
+              allCountries={allCountries}
+              queryType={"confirmed"}
+              transitionTime={transitionTime}
+              isReseted={isReseted}
+              chartTitle={"CONFIRMED CASES"}
+              completeLists={completeConfirmedLists}
+              start={start}
+              dateIndex={dateIndex}
+              setDateIndex={setDateIndex}
+            />
+            <RacingBarChart
+              allCountries={allCountries}
+              queryType={"deaths"}
+              transitionTime={transitionTime}
+              isReseted={isReseted}
+              chartTitle={"DEATHS"}
+              completeLists={completeDeathsLists}
+              start={start}
+              dateIndex={dateIndex}
+              setDateIndex={setDateIndex}
+            />
+            <RacingBarChart
+              allCountries={allCountries}
+              queryType={"ratio"}
+              transitionTime={transitionTime}
+              isReseted={isReseted}
+              chartTitle={"MORTALITY %"}
+              completeLists={completeRatioLists}
+              start={start}
+              dateIndex={dateIndex}
+              setDateIndex={setDateIndex}
+            />
+          </div>
         </div>
       )}
     </div>

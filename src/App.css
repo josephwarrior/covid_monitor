@@ -2,9 +2,10 @@ body {
   background-color: #282c34;
   width: 100%;
 }
+
 .App {
   text-align: center;
-  background-color: #282c34;
+
   color: gray;
   height: 100%;
   width: 100%;
@@ -12,6 +13,7 @@ body {
 
 .App * {
   outline: none;
+  overflow: hidden;
 }
 
 .App-logo {
@@ -85,36 +87,38 @@ span {
   margin-left: 50px;
 }
 
-svg {
-  display: grid;
-  /*height: 50rem; */
+h3 {
+  margin: 0px 0px 2px 0px;
+}
+
+.rbc-parent {
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.racing-bars-container {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+}
+
+/*
+.barcharts-container {
   grid-template-columns: 33% 33% 33%;
   grid-template-rows: auto auto auto;
-  overflow: auto;
-}
+}*/
 
 @media only screen and (min-width: 769px) {
-  svg {
-    grid-template-columns: 33% 33% 33%;
-    grid-template-rows: auto auto auto;
-  }
-}
-
-/* @media only screen and (max-width:768px){
   .racing-bars-container {
-    grid-template-columns: 33% 33% 33%;
+    flex-direction: row;
+    justify-content: space-between;
   }
-} */
-
-.controlbar-group {
-  grid-column-start: 1;
-  grid-column-end: 4;
-  grid-row-start: 1;
-  grid-row-end: 2;
 }
-.chart-group {
-  grid-column: 1/2;
-  grid-row: 2/3;
+
+@media only screen and (max-width: 768px) {
+  .racing-bars-container {
+    flex-direction: column;
+  }
 }
 
 .hidden {
