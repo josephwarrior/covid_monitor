@@ -22,7 +22,7 @@ function App() {
   const [allCountries, setAllCountries] = useState([]);
   const [datesArray, setDatesArray] = useState([]);
 
-  const [transitionTime, setTransitionTime] = useState(300);
+  const [transitionTime, setTransitionTime] = useState(500);
   const [isReseted, setIsReseted] = useState(false);
 
   useEffect(() => {
