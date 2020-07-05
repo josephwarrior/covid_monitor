@@ -16,11 +16,13 @@
     "react-scripts": "3.4.1",
     "resize-observer-polyfill": "^1.5.1"
   },
+  "homepage": "https://josephwarrior.github.io/covid_monitor",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d dist"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "express": "^4.17.1",
+    "gh-pages": "^3.1.0",
     "nodemon": "^2.0.4"
   }
 }
