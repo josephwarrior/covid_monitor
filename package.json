@@ -9,7 +9,7 @@
     "cors": "^2.8.5",
     "d3": "^5.16.0",
     "mongoose": "^5.9.18",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "node-promise": "^0.5.14",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
